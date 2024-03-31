@@ -1,5 +1,6 @@
 """Module representing TextNodes"""
 
+import re
 from htmlnode import LeafNode
 
 TEXT_TYPE_TEXT = "text"
@@ -63,3 +64,13 @@ def split_delimiter(old_nodes, delimiter, text_type):
                 new_node = TextNode(text, text_type)
             new_node_list.append(new_node)
     return new_node_list
+
+
+def extract_markdown_images(text):
+    images = re.findall(r"!\[(.*?)\]\((.*?)\)", text)
+    return images
+
+
+def extract_markdown_links(text):
+    links = re.findall(r"\[(.*?)\]\((.*?)\)", text)
+    return links

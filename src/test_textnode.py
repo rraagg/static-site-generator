@@ -3,6 +3,8 @@ import unittest
 from textnode import (
     TextNode,
     split_delimiter,
+    extract_markdown_images,
+    extract_markdown_links,
     TEXT_TYPE_TEXT,
     TEXT_TYPE_BOLD,
     TEXT_TYPE_ITALIC,
@@ -135,6 +137,27 @@ class TestTextNode(unittest.TestCase):
 
         self.assertListEqual(got, want)
         self.assertListEqual(got2, want2)
+
+    def test_extract_markdown_images(self):
+        text = "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and ![another](https://i.imgur.com/dfsdkjfd.png)"
+
+        want = [
+            ("image", "https://i.imgur.com/zjjcJKZ.png"),
+            ("another", "https://i.imgur.com/dfsdkjfd.png"),
+        ]
+
+        got = extract_markdown_images(text)
+        self.assertListEqual(got, want)
+
+    def test_extract_markdown_links(self):
+        text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
+        want = [
+            ("link", "https://www.example.com"),
+            ("another", "https://www.example.com/another"),
+        ]
+
+        got = extract_markdown_links(text)
+        self.assertListEqual(got, want)
 
 
 if __name__ == "__main__":
