@@ -74,3 +74,43 @@ def extract_markdown_images(text):
 def extract_markdown_links(text):
     links = re.findall(r"\[(.*?)\]\((.*?)\)", text)
     return links
+
+
+def split_nodes_image(nodes):
+    split_images = extract_markdown_images(nodes[0].text)
+    if len(split_images) == 0:
+        return nodes
+    if len(nodes) > 1:
+        new_nodes_list = nodes[1:]
+    current_nodes_list = nodes[0].text.split(
+        f"![{split_images[0][0]}]({split_images[0][1]})", 1
+    )
+    if len(current_nodes_list) > 1 and current_nodes_list[1] != "":
+        new_nodes_list = [TextNode(current_nodes_list[1], TEXT_TYPE_TEXT)]
+    new_nodes_list.extend(
+        [
+            TextNode(current_nodes_list[0], TEXT_TYPE_TEXT),
+            TextNode(split_images[0][0], TEXT_TYPE_IMAGE, split_images[0][1]),
+        ]
+    )
+    return split_nodes_image(new_nodes_list)
+
+
+def split_nodes_links(nodes):
+    split_links = extract_markdown_links(nodes[0].text)
+    if len(split_links) == 0:
+        return nodes
+    if len(nodes) > 1:
+        new_nodes_list = nodes[1:]
+    current_nodes_list = nodes[0].text.split(
+        f"[{split_links[0][0]}]({split_links[0][1]})", 1
+    )
+    if len(current_nodes_list) > 1 and current_nodes_list[1] != "":
+        new_nodes_list = [TextNode(current_nodes_list[1], TEXT_TYPE_TEXT)]
+    new_nodes_list.extend(
+        [
+            TextNode(current_nodes_list[0], TEXT_TYPE_TEXT),
+            TextNode(split_links[0][0], TEXT_TYPE_LINK, split_links[0][1]),
+        ]
+    )
+    return split_nodes_links(new_nodes_list)
