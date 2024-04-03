@@ -5,6 +5,8 @@ from textnode import (
     split_delimiter,
     extract_markdown_images,
     extract_markdown_links,
+    split_nodes_image,
+    split_nodes_links,
     TEXT_TYPE_TEXT,
     TEXT_TYPE_BOLD,
     TEXT_TYPE_ITALIC,
@@ -157,6 +159,45 @@ class TestTextNode(unittest.TestCase):
         ]
 
         got = extract_markdown_links(text)
+        self.assertListEqual(got, want)
+
+    def test_split_nodes_image(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TEXT_TYPE_TEXT,
+        )
+
+        want = [
+            TextNode("This is text with an ", TEXT_TYPE_TEXT),
+            TextNode("image", TEXT_TYPE_IMAGE,
+                     "https://i.imgur.com/zjjcJKZ.png"),
+            TextNode(" and another ", TEXT_TYPE_TEXT),
+            TextNode(
+                "second image", TEXT_TYPE_IMAGE, "https://i.imgur.com/3elNhQu.png"
+            ),
+        ]
+        nodes = [node]
+
+        got = split_nodes_image(nodes)
+        self.assertListEqual(got, want)
+
+    def test_split_nodes_links(self):
+        text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
+        node = TextNode(
+            text,
+            TEXT_TYPE_TEXT,
+        )
+
+        want = [
+            TextNode("This is text with a ", TEXT_TYPE_TEXT),
+            TextNode("link", TEXT_TYPE_LINK, "https://www.example.com"),
+            TextNode(" and ", TEXT_TYPE_TEXT),
+            TextNode("another", TEXT_TYPE_LINK,
+                     "https://www.example.com/another"),
+        ]
+        nodes = [node]
+
+        got = split_nodes_links(nodes)
         self.assertListEqual(got, want)
 
 
