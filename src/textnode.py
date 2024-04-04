@@ -76,41 +76,56 @@ def extract_markdown_links(text):
     return links
 
 
-def split_nodes_image(nodes):
-    split_images = extract_markdown_images(nodes[0].text)
-    if len(split_images) == 0:
-        return nodes
-    if len(nodes) > 1:
-        new_nodes_list = nodes[1:]
-    current_nodes_list = nodes[0].text.split(
-        f"![{split_images[0][0]}]({split_images[0][1]})", 1
-    )
-    if len(current_nodes_list) > 1 and current_nodes_list[1] != "":
-        new_nodes_list = [TextNode(current_nodes_list[1], TEXT_TYPE_TEXT)]
-    new_nodes_list.extend(
-        [
-            TextNode(current_nodes_list[0], TEXT_TYPE_TEXT),
-            TextNode(split_images[0][0], TEXT_TYPE_IMAGE, split_images[0][1]),
-        ]
-    )
-    return split_nodes_image(new_nodes_list)
+def split_nodes_images(nodes):
+    new_nodes_list = []
+    for node in nodes:
+        if node.text_type != TEXT_TYPE_TEXT:
+            print("Not Text")
+            new_nodes_list.append(node)
+            continue
+        current_text = node.text
+        split_images = extract_markdown_images(current_text)
+        if len(split_images) == 0:
+            new_nodes_list.append(node)
+            continue
+        for image in split_images:
+            current_text_list = current_text.split(
+                f"![{image[0]}]({image[1]})", 1)
+            if len(current_text_list) != 2:
+                raise ValueError("Invalid image")
+            if current_text_list[0] != "":
+                new_nodes_list.append(
+                    TextNode(current_text_list[0], TEXT_TYPE_TEXT))
+            new_nodes_list.append(
+                TextNode(image[0], TEXT_TYPE_IMAGE, image[1]))
+            current_text = current_text_list[1]
+        if current_text != "":
+            new_nodes_list.append(TextNode(current_text, TEXT_TYPE_TEXT))
+    return new_nodes_list
 
 
 def split_nodes_links(nodes):
-    split_links = extract_markdown_links(nodes[0].text)
-    if len(split_links) == 0:
-        return nodes
-    if len(nodes) > 1:
-        new_nodes_list = nodes[1:]
-    current_nodes_list = nodes[0].text.split(
-        f"[{split_links[0][0]}]({split_links[0][1]})", 1
-    )
-    if len(current_nodes_list) > 1 and current_nodes_list[1] != "":
-        new_nodes_list = [TextNode(current_nodes_list[1], TEXT_TYPE_TEXT)]
-    new_nodes_list.extend(
-        [
-            TextNode(current_nodes_list[0], TEXT_TYPE_TEXT),
-            TextNode(split_links[0][0], TEXT_TYPE_LINK, split_links[0][1]),
-        ]
-    )
-    return split_nodes_links(new_nodes_list)
+    new_nodes_list = []
+    for node in nodes:
+        if node.text_type != TEXT_TYPE_TEXT:
+            print("Not Text")
+            new_nodes_list.append(node)
+            continue
+        current_text = node.text
+        split_links = extract_markdown_links(current_text)
+        if len(split_links) == 0:
+            new_nodes_list.append(node)
+            continue
+        for link in split_links:
+            current_text_list = current_text.split(
+                f"[{link[0]}]({link[1]})", 1)
+            if len(current_text_list) != 2:
+                raise ValueError("Invalid Link")
+            if current_text_list[0] != "":
+                new_nodes_list.append(
+                    TextNode(current_text_list[0], TEXT_TYPE_TEXT))
+            new_nodes_list.append(TextNode(link[0], TEXT_TYPE_LINK, link[1]))
+            current_text = current_text_list[1]
+        if current_text != "":
+            new_nodes_list.append(TextNode(current_text, TEXT_TYPE_TEXT))
+    return new_nodes_list
