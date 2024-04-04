@@ -167,6 +167,10 @@ class TestTextNode(unittest.TestCase):
             TEXT_TYPE_TEXT,
         )
 
+        node2 = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png) with text that follows.",
+            TEXT_TYPE_TEXT,
+        )
         want = [
             TextNode("This is text with an ", TEXT_TYPE_TEXT),
             TextNode("image", TEXT_TYPE_IMAGE,
@@ -176,10 +180,23 @@ class TestTextNode(unittest.TestCase):
                 "second image", TEXT_TYPE_IMAGE, "https://i.imgur.com/3elNhQu.png"
             ),
         ]
+        want2 = [
+            TextNode("This is text with an ", TEXT_TYPE_TEXT),
+            TextNode("image", TEXT_TYPE_IMAGE,
+                     "https://i.imgur.com/zjjcJKZ.png"),
+            TextNode(" and another ", TEXT_TYPE_TEXT),
+            TextNode(
+                "second image", TEXT_TYPE_IMAGE, "https://i.imgur.com/3elNhQu.png"
+            ),
+            TextNode(" with text that follows.", TEXT_TYPE_TEXT),
+        ]
         nodes = [node]
+        nodes2 = [node2]
 
         got = split_nodes_images(nodes)
         self.assertListEqual(got, want)
+        got2 = split_nodes_images(nodes2)
+        self.assertListEqual(got2, want2)
 
     def test_split_nodes_links(self):
         text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another) with text that follows."
