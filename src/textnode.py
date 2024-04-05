@@ -31,17 +31,17 @@ class TextNode:
 
 
 def text_node_to_html_node(text_node):
-    if text_node.text == TEXT_TYPE_TEXT:
+    if text_node.text_type == TEXT_TYPE_TEXT:
         return LeafNode(None, text_node.text)
-    if text_node.text == TEXT_TYPE_BOLD:
+    if text_node.text_type == TEXT_TYPE_BOLD:
         return LeafNode("b", text_node.text)
-    if text_node.text == TEXT_TYPE_ITALIC:
+    if text_node.text_type == TEXT_TYPE_ITALIC:
         return LeafNode("i", text_node.text)
-    if text_node.text == TEXT_TYPE_CODE:
+    if text_node.text_type == TEXT_TYPE_CODE:
         return LeafNode("code", text_node.text)
-    if text_node.text == TEXT_TYPE_LINK:
+    if text_node.text_type == TEXT_TYPE_LINK:
         return LeafNode("a", text_node.text, text_node.url)
-    if text_node.text == TEXT_TYPE_IMAGE:
+    if text_node.text_type == TEXT_TYPE_IMAGE:
         return LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
     raise ValueError(f"Not a valid text type: {text_node.text}")
 
@@ -80,7 +80,6 @@ def split_nodes_images(nodes):
     new_nodes_list = []
     for node in nodes:
         if node.text_type != TEXT_TYPE_TEXT:
-            print("Not Text")
             new_nodes_list.append(node)
             continue
         current_text = node.text
@@ -108,7 +107,6 @@ def split_nodes_links(nodes):
     new_nodes_list = []
     for node in nodes:
         if node.text_type != TEXT_TYPE_TEXT:
-            print("Not Text")
             new_nodes_list.append(node)
             continue
         current_text = node.text
@@ -129,3 +127,15 @@ def split_nodes_links(nodes):
         if current_text != "":
             new_nodes_list.append(TextNode(current_text, TEXT_TYPE_TEXT))
     return new_nodes_list
+
+
+def text_to_textnodes(text):
+    textnodes = []
+    node = TextNode(text, TEXT_TYPE_TEXT)
+    original_node_list = [node]
+    textnodes = split_delimiter(original_node_list, "**", TEXT_TYPE_BOLD)
+    textnodes = split_delimiter(textnodes, "*", TEXT_TYPE_ITALIC)
+    textnodes = split_delimiter(textnodes, "`", TEXT_TYPE_CODE)
+    textnodes = split_nodes_images(textnodes)
+    textnodes = split_nodes_links(textnodes)
+    return textnodes

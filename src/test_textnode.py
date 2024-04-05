@@ -7,6 +7,7 @@ from textnode import (
     extract_markdown_links,
     split_nodes_images,
     split_nodes_links,
+    text_to_textnodes,
     TEXT_TYPE_TEXT,
     TEXT_TYPE_BOLD,
     TEXT_TYPE_ITALIC,
@@ -231,6 +232,46 @@ class TestTextNode(unittest.TestCase):
         got = split_nodes_links(nodes)
         got2 = split_nodes_links(nodes2)
         self.assertListEqual(got, want)
+        self.assertListEqual(got2, want2)
+
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)"
+        text2 = "This is text with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)"
+
+        want = [
+            TextNode("This is ", TEXT_TYPE_TEXT),
+            TextNode("text", TEXT_TYPE_BOLD),
+            TextNode(" with an ", TEXT_TYPE_TEXT),
+            TextNode("italic", TEXT_TYPE_ITALIC),
+            TextNode(" word and a ", TEXT_TYPE_TEXT),
+            TextNode("code block", TEXT_TYPE_CODE),
+            TextNode(" and an ", TEXT_TYPE_TEXT),
+            TextNode(
+                "image",
+                TEXT_TYPE_IMAGE,
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png",
+            ),
+            TextNode(" and a ", TEXT_TYPE_TEXT),
+            TextNode("link", TEXT_TYPE_LINK, "https://boot.dev"),
+        ]
+
+        want2 = [
+            TextNode("This is text with an ", TEXT_TYPE_TEXT),
+            TextNode("italic", TEXT_TYPE_ITALIC),
+            TextNode(" word and a ", TEXT_TYPE_TEXT),
+            TextNode("code block", TEXT_TYPE_CODE),
+            TextNode(" and an ", TEXT_TYPE_TEXT),
+            TextNode(
+                "image",
+                TEXT_TYPE_IMAGE,
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png",
+            ),
+            TextNode(" and a ", TEXT_TYPE_TEXT),
+            TextNode("link", TEXT_TYPE_LINK, "https://boot.dev"),
+        ]
+        got = text_to_textnodes(text)
+        self.assertListEqual(got, want)
+        got2 = text_to_textnodes(text2)
         self.assertListEqual(got2, want2)
 
 
