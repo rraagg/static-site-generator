@@ -88,15 +88,12 @@ def split_nodes_images(nodes):
             new_nodes_list.append(node)
             continue
         for image in split_images:
-            current_text_list = current_text.split(
-                f"![{image[0]}]({image[1]})", 1)
+            current_text_list = current_text.split(f"![{image[0]}]({image[1]})", 1)
             if len(current_text_list) != 2:
                 raise ValueError("Invalid image")
             if current_text_list[0] != "":
-                new_nodes_list.append(
-                    TextNode(current_text_list[0], TEXT_TYPE_TEXT))
-            new_nodes_list.append(
-                TextNode(image[0], TEXT_TYPE_IMAGE, image[1]))
+                new_nodes_list.append(TextNode(current_text_list[0], TEXT_TYPE_TEXT))
+            new_nodes_list.append(TextNode(image[0], TEXT_TYPE_IMAGE, image[1]))
             current_text = current_text_list[1]
         if current_text != "":
             new_nodes_list.append(TextNode(current_text, TEXT_TYPE_TEXT))
@@ -115,13 +112,11 @@ def split_nodes_links(nodes):
             new_nodes_list.append(node)
             continue
         for link in split_links:
-            current_text_list = current_text.split(
-                f"[{link[0]}]({link[1]})", 1)
+            current_text_list = current_text.split(f"[{link[0]}]({link[1]})", 1)
             if len(current_text_list) != 2:
                 raise ValueError("Invalid Link")
             if current_text_list[0] != "":
-                new_nodes_list.append(
-                    TextNode(current_text_list[0], TEXT_TYPE_TEXT))
+                new_nodes_list.append(TextNode(current_text_list[0], TEXT_TYPE_TEXT))
             new_nodes_list.append(TextNode(link[0], TEXT_TYPE_LINK, link[1]))
             current_text = current_text_list[1]
         if current_text != "":
@@ -139,3 +134,26 @@ def text_to_textnodes(text):
     textnodes = split_nodes_images(textnodes)
     textnodes = split_nodes_links(textnodes)
     return textnodes
+
+
+def markdown_to_blocks(markdown):
+    lines_list = markdown.split("\n")
+    print(lines_list)
+    block_strings_list = []
+    current_block = []
+    for line in lines_list:
+        new_line = line.strip()
+        print(f"line: {new_line}")
+        if new_line == "" and len(current_block) == 0:
+            continue
+        if new_line == "" and len(current_block) == 1:
+            block_strings_list.append(current_block[0])
+            current_block.clear()
+            continue
+        if len(current_block) == 0:
+            current_block.append(new_line)
+        else:
+            current_block[0] = current_block[0] + "\n" + new_line
+    if len(current_block) == 1:
+        block_strings_list.append(current_block[0])
+    return block_strings_list
