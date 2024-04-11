@@ -8,6 +8,7 @@ from textnode import (
     split_nodes_images,
     split_nodes_links,
     text_to_textnodes,
+    markdown_to_blocks,
     TEXT_TYPE_TEXT,
     TEXT_TYPE_BOLD,
     TEXT_TYPE_ITALIC,
@@ -34,16 +35,14 @@ class TestTextNode(unittest.TestCase):
         self.assertNotEqual(node, node2)
 
     def test_eq_url(self):
-        node = TextNode("This is a text node",
-                        TEXT_TYPE_ITALIC, "https://www.boot.dev")
+        node = TextNode("This is a text node", TEXT_TYPE_ITALIC, "https://www.boot.dev")
         node2 = TextNode(
             "This is a text node", TEXT_TYPE_ITALIC, "https://www.boot.dev"
         )
         self.assertEqual(node, node2)
 
     def test_repr(self):
-        node = TextNode("This is a text node", TEXT_TYPE_TEXT,
-                        "https://www.boot.dev")
+        node = TextNode("This is a text node", TEXT_TYPE_TEXT, "https://www.boot.dev")
         self.assertEqual(
             "TextNode(This is a text node, text, https://www.boot.dev)", repr(node)
         )
@@ -174,8 +173,7 @@ class TestTextNode(unittest.TestCase):
         )
         want = [
             TextNode("This is text with an ", TEXT_TYPE_TEXT),
-            TextNode("image", TEXT_TYPE_IMAGE,
-                     "https://i.imgur.com/zjjcJKZ.png"),
+            TextNode("image", TEXT_TYPE_IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
             TextNode(" and another ", TEXT_TYPE_TEXT),
             TextNode(
                 "second image", TEXT_TYPE_IMAGE, "https://i.imgur.com/3elNhQu.png"
@@ -183,8 +181,7 @@ class TestTextNode(unittest.TestCase):
         ]
         want2 = [
             TextNode("This is text with an ", TEXT_TYPE_TEXT),
-            TextNode("image", TEXT_TYPE_IMAGE,
-                     "https://i.imgur.com/zjjcJKZ.png"),
+            TextNode("image", TEXT_TYPE_IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
             TextNode(" and another ", TEXT_TYPE_TEXT),
             TextNode(
                 "second image", TEXT_TYPE_IMAGE, "https://i.imgur.com/3elNhQu.png"
@@ -215,16 +212,14 @@ class TestTextNode(unittest.TestCase):
             TextNode("This is text with a ", TEXT_TYPE_TEXT),
             TextNode("link", TEXT_TYPE_LINK, "https://www.example.com"),
             TextNode(" and ", TEXT_TYPE_TEXT),
-            TextNode("another", TEXT_TYPE_LINK,
-                     "https://www.example.com/another"),
+            TextNode("another", TEXT_TYPE_LINK, "https://www.example.com/another"),
             TextNode(" with text that follows.", TEXT_TYPE_TEXT),
         ]
         want2 = [
             TextNode("This is text with a ", TEXT_TYPE_TEXT),
             TextNode("link", TEXT_TYPE_LINK, "https://www.example.com"),
             TextNode(" and ", TEXT_TYPE_TEXT),
-            TextNode("another", TEXT_TYPE_LINK,
-                     "https://www.example.com/another"),
+            TextNode("another", TEXT_TYPE_LINK, "https://www.example.com/another"),
         ]
         nodes = [node]
         nodes2 = [node2]
@@ -273,6 +268,52 @@ class TestTextNode(unittest.TestCase):
         self.assertListEqual(got, want)
         got2 = text_to_textnodes(text2)
         self.assertListEqual(got2, want2)
+
+    def test_markdown_to_blocks(self):
+        document = """
+        This is **bolded** paragraph
+
+        This is another paragraph with *italic* text and `code` here
+        This is the same paragraph on a new line
+
+        * This is a list
+        * with items
+        """
+        want = [
+            "This is **bolded** paragraph",
+            "This is another paragraph with *italic* text and `code` here\nThis is the same paragraph on a new line",
+            "* This is a list\n* with items",
+        ]
+        print("really?")
+
+        document2 = "This is one line"
+        want2 = ["This is one line"]
+
+        document3 = "This is two lines\n** I'm line two"
+        want3 = ["This is two lines\n** I'm line two"]
+
+        document4 = """
+        
+        This is on the second line.
+        This is on the third line.
+
+        This is on the fifth line.
+
+        """
+
+        want4 = [
+            "This is on the second line.\nThis is on the third line.",
+            "This is on the fifth line.",
+        ]
+
+        got = markdown_to_blocks(document)
+        self.assertListEqual(got, want)
+        got2 = markdown_to_blocks(document2)
+        self.assertListEqual(got2, want2)
+        got3 = markdown_to_blocks(document3)
+        self.assertListEqual(got3, want3)
+        got4 = markdown_to_blocks(document4)
+        self.assertListEqual(got4, want4)
 
 
 if __name__ == "__main__":
