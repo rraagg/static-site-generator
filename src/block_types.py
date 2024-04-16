@@ -10,9 +10,9 @@ BLOCK_TYPE_ORDERED_LIST = "ordered_list"
 
 def block_to_block_type(block):
     heading_pattern = "#{1,6} ."
-    code_pattern = "^`{3}.*`{3}$"
+    code_pattern = "^`{3}(.|\n)*`{3}$"
     quote_pattern = "^>.*"
-    unordered_list_pattern = "^[*-].*"
+    unordered_list_pattern = "^[*-] .*"
     ordered_list_pattern = "^[1][.]"
     if len(re.findall(heading_pattern, block)) != 0:
         return BLOCK_TYPE_HEADING
