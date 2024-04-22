@@ -40,8 +40,11 @@ def paragraph_to_html(block):
 def heading_to_html(block):
     nodes_list = block.split(" ")
     heading_size = len(nodes_list[0])
-    return LeafNode(f"h{heading_size}", " ".join(nodes_list[1:]))
-
+    html_nodes = []
+    text_nodes = text_to_textnodes(" ".join(nodes_list[1:]))
+    for node in text_nodes:
+        html_nodes.append(text_node_to_html_node(node))
+    return ParentNode(f"h{heading_size}", html_nodes)
 
 def quote_to_html(block):
     nodes_list = block.split("\n")
@@ -59,7 +62,7 @@ def quote_to_html(block):
 
 def code_to_html(block):
     nodes_list = block.split("```")
-    return ParentNode("pre", [LeafNode("code", nodes_list[1])])
+    return ParentNode("pre", [LeafNode("code", nodes_list[1].strip())])
 
 
 def ordered_list_to_html(block):
@@ -67,7 +70,11 @@ def ordered_list_to_html(block):
     list_items_list = []
     for current_node in nodes_list:
         item_text_list = current_node.split(" ")
-        list_items_list.append(LeafNode("li", " ".join(item_text_list[1:])))
+        html_nodes = []
+        text_nodes = text_to_textnodes(" ".join(item_text_list[1:]))
+        for node in text_nodes:
+            html_nodes.append(text_node_to_html_node(node))
+        list_items_list.append(ParentNode("li", html_nodes))
     return ParentNode("ol", list_items_list)
 
 
@@ -76,7 +83,11 @@ def unordered_list_to_html(block):
     list_items_list = []
     for current_node in nodes_list:
         item_text_list = current_node.split(" ")
-        list_items_list.append(LeafNode("li", " ".join(item_text_list[1:])))
+        html_nodes = []
+        text_nodes = text_to_textnodes(" ".join(item_text_list[1:]))
+        for node in text_nodes:
+            html_nodes.append(text_node_to_html_node(node))
+        list_items_list.append(ParentNode("li", html_nodes))
     return ParentNode("ul", list_items_list)
 
 

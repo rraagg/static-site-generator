@@ -53,7 +53,7 @@ class TestBlockToHtml(unittest.TestCase):
 
         want = ParentNode(
             "div", [ParentNode(
-                "pre", [LeafNode("code", "\nx = 2\nprint(x)\n")])]
+                "pre", [LeafNode("code", "x = 2\nprint(x)")])]
         )
 
         self.assertEqual(got_code.to_html(), want.to_html())

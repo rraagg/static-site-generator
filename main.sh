@@ -1,3 +1,3 @@
-python src/main.py
-python server.py --dir public
+python3 src/main.py
+python3 server.py --dir public
 
