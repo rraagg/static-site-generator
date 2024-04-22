@@ -1,3 +1,4 @@
+import os
 from markdown_to_blocks import markdown_to_blocks
 from block_types import (
     block_to_block_type,
@@ -31,6 +32,19 @@ def generate_page(from_path, template_path, dest_path):
     final_template = template_title.replace(
         "{{ Content }}", markdown_to_html.to_html())
 
-    with open(dest_path, "w+", encoding="utf-8") as final_html:
+    with open(dest_path, "w", encoding="utf-8") as final_html:
         final_html.write(final_template)
         final_html.close()
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    dir_contents = os.listdir(dir_path_content)
+    for item in dir_contents:
+        current_md_item = os.path.join(dir_path_content, item)
+        if os.path.isfile(current_md_item):
+            current_html_item = os.path.join(dest_dir_path, item)
+            generate_page(current_md_item, template_path, current_html_item.replace(".md", ".html"))
+        else:
+            new_dir = os.path.join(dest_dir_path, item)
+            if os.path.isdir(new_dir) is False:
+                os.mkdir(new_dir)
+            generate_pages_recursive(current_md_item, template_path, new_dir)
